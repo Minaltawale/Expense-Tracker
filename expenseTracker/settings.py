@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-mir-op)xiy757o6ktc(vd4rg+tr3q%^(9v(4n8dvfpeizqm5sg
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -68,6 +68,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'expenseTracker.wsgi.application'
+
 
 
 # Database
@@ -133,6 +134,16 @@ STATICFILES_DIR = {
 
 MEDIA_ROOT =  os.path.join(BASE_DIR, 'public/static') 
 MEDIA_URL = '/media/'
+
+# STATIC_URL = '/static/'
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, "public/static"),  # where your css/js live
+# ]
+# STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")  # for collectstatic
+
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, "media")  # for user uploads
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

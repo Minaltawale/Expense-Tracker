@@ -1,8 +1,15 @@
 from django.shortcuts import render, redirect
 from .models import CurrentBalance, TrackingHistory
+from django.contrib import messages
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 
+
+@login_required(login_url= "login_view") 
 def index(request):
     if request.method == "POST":
+        print("DEBUG:", request.user.first_name, request.user.last_name)
         description= request.POST.get("description")
         amount= request.POST.get("amount")
 
@@ -11,6 +18,10 @@ def index(request):
         expense_type= "CREDIT"
         if float(amount)<0:
             expense_type= "DEBIT"
+
+        if float(amount)==0:
+            messages.success(request, "Amount cannot be zero")
+            return redirect("/")
 
         tracking_history= TrackingHistory.objects.create(amount= amount, expense_type= expense_type, current_balance= current_balance, description= description)
         current_balance.current_balance += float(tracking_history.amount)
@@ -42,15 +53,50 @@ def delete_transaction(request, id):
         current_balance.current_balance= current_balance.current_balance- tracking_history.amount
         current_balance.save()
 
-
-
-
-
-
-
-
-
-
-
     tracking_history.delete()
     return redirect("/")
+
+#login page
+def login_view(request):
+    if request.method== "POST":
+        username= request.POST.get('username')
+        password= request.POST.get('password')
+        user= User.objects.filter(username=username)
+        if not user.exists():
+            messages.success(request, "Username not found.")
+            return redirect("/login/")
+        
+        user= authenticate(username= username, password= password)
+        if not user:
+            messages.success(request, "Incorrect password.")
+            return redirect("/login/")
+        login(request, user)
+        return redirect('/')
+    return render(request, "login.html")
+
+
+#register page
+def register_view(request):
+    if request.method=="POST":
+        username= request.POST.get('username')
+        first_name= request.POST.get('first_name')
+        last_name= request.POST.get('last_name')
+        password= request.POST.get('password')
+        user= User.objects.filter(username= username)
+        if user.exists():
+            messages.success(request, "Username already exist.")
+            return redirect("/register/")
+        
+
+        user= User.objects.create(username=username, first_name=first_name, last_name=last_name)
+        user.set_password(password)
+        user.save()
+        messages.success(request, "Account Created.")
+        return redirect("/register/")
+
+    return render(request, "register.html")
+
+#logout
+def logout_view(request):
+    logout(request)
+    return redirect("/login/")
